@@ -787,41 +787,10 @@ async def bot(runner_args: RunnerArguments):
 
 
 if __name__ == "__main__":
-    import threading
-    import os
-    import uvicorn
-    from fastapi import FastAPI
-    from fastapi.staticfiles import StaticFiles
-    from fastapi.middleware.cors import CORSMiddleware
-
-    # ---------------- HTTP SERVER (Render health check) ----------------
-    app = FastAPI(
-        docs_url="/docs",  # Enable Swagger UI
-        redoc_url="/redoc",  # Enable ReDoc documentation
-        openapi_url="/openapi.json"  # Enable OpenAPI schema
-    )
-
-    app.add_middleware(
-        CORSMiddleware,
-        allow_origins=["*"],  # Replace "*" with specific domains in production
-        allow_credentials=True,
-        allow_methods=["*"],
-        allow_headers=["*"],
-    )
-
-    @app.get("/")
-    async def root():
-        return {"status": "ok"}
-
-    app.mount("/client", StaticFiles(directory="path_to_client_files"), name="client")
-
-    def start_http():
-        port = int(os.environ.get("PORT", 7860))
-        uvicorn.run(app, host="0.0.0.0", port=port, log_level="warning")
-
-    # Start HTTP server in background
-    threading.Thread(target=start_http, daemon=True).start()
-
     # ---------------- START PIPECAT BOT ----------------
+    # Pipecat's main() will handle all endpoints including:
+    # - / (health check)
+    # - /client (playground)
+    # - /api/offer, /start, /sessions/*, etc.
     from pipecat.runner.run import main
     main()
