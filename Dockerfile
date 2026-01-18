@@ -1,4 +1,4 @@
-FROM dailyco/pipecat-base:latest
+FROM --platform=linux/amd64 dailyco/pipecat-base:latest
 
 # Enable bytecode compilation
 ENV UV_COMPILE_BYTECODE=1
@@ -15,6 +15,3 @@ RUN --mount=type=cache,target=/root/.cache/uv \
 # Copy the application code
 COPY ./bot.py bot.py
 COPY ./resource_document.txt resource_document.txt
-
-
-
