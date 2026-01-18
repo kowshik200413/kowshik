@@ -787,13 +787,25 @@ async def bot(runner_args: RunnerArguments):
 
 
 if __name__ == "__main__":
+    import threading
+    import os
+    import uvicorn
+    from fastapi import FastAPI
+
+    # ---------------- HTTP SERVER (Render health check) ----------------
+    app = FastAPI()
+
+    @app.get("/")
+    async def root():
+        return {"status": "ok"}
+
+    def start_http():
+        port = int(os.environ.get("PORT", 7860))
+        uvicorn.run(app, host="0.0.0.0", port=port, log_level="warning")
+
+    # Start HTTP server in background
+    threading.Thread(target=start_http, daemon=True).start()
+
+    # ---------------- START PIPECAT BOT ----------------
     from pipecat.runner.run import main
-    
-    main(
-        args=[
-            "--transport", "webrtc",
-            "--rtvi",
-            "--host", "0.0.0.0",
-            "--port", os.environ.get("PORT", "7860"),
-        ]
-    )
+    main()
