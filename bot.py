@@ -791,13 +791,29 @@ if __name__ == "__main__":
     import os
     import uvicorn
     from fastapi import FastAPI
+    from fastapi.staticfiles import StaticFiles
+    from fastapi.middleware.cors import CORSMiddleware
 
     # ---------------- HTTP SERVER (Render health check) ----------------
-    app = FastAPI()
+    app = FastAPI(
+        docs_url="/docs",  # Enable Swagger UI
+        redoc_url="/redoc",  # Enable ReDoc documentation
+        openapi_url="/openapi.json"  # Enable OpenAPI schema
+    )
+
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=["*"],  # Replace "*" with specific domains in production
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
 
     @app.get("/")
     async def root():
         return {"status": "ok"}
+
+    app.mount("/client", StaticFiles(directory="path_to_client_files"), name="client")
 
     def start_http():
         port = int(os.environ.get("PORT", 7860))
