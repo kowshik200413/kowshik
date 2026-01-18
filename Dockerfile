@@ -1,6 +1,5 @@
 FROM python:3.11-slim
 
-# System dependencies for audio / WebRTC
 RUN apt-get update && apt-get install -y \
     ffmpeg \
     libsndfile1 \
@@ -11,17 +10,13 @@ RUN apt-get update && apt-get install -y \
 
 WORKDIR /app
 
-# Copy dependency files
 COPY pyproject.toml uv.lock ./
 
-# Install uv
 RUN pip install --no-cache-dir uv
 
-# Install dependencies
 RUN uv sync --locked --no-dev
 
-# Copy application code
 COPY bot.py bot.py
 COPY resource_document.txt resource_document.txt
 
-CMD ["python", "bot.py", "--transport", "daily"]
+CMD ["uv", "run", "python", "bot.py", "--transport", "daily"]
