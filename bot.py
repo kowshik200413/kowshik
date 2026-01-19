@@ -41,8 +41,6 @@ from pipecat.pipeline.task import PipelineParams, PipelineTask
 from pipecat.processors.aggregators.llm_context import LLMContext
 from pipecat.processors.aggregators.llm_response_universal import LLMContextAggregatorPair
 from pipecat.processors.frameworks.rtvi import RTVIConfig, RTVIObserver, RTVIProcessor
-from pipecat.runner.types import RunnerArguments
-from pipecat.runner.utils import create_transport
 from pipecat.services.cartesia.tts import CartesiaTTSService
 from pipecat.services.elevenlabs.tts import ElevenLabsTTSService
 from pipecat_murf_tts import MurfTTSService
@@ -485,7 +483,10 @@ class TTSPreprocessor(FrameProcessor):
 
 # ===== BOT INITIALIZATION AND SETUP =====
 
-async def run_bot(transport: BaseTransport, runner_args: RunnerArguments):
+async def run_bot(transport):
+    if hasattr(transport, "transport_type"):
+        logger.info(f"🚚 Transport in use: {transport.transport_type}")
+
     logger.info(f"Starting bot")
 
     # ===== KNOWLEDGE BASE LOADING (REQUIRED FOR STT CONTEXT) =====
@@ -758,33 +759,12 @@ async def run_bot(transport: BaseTransport, runner_args: RunnerArguments):
         logger.info(f"Client disconnected")
         await task.cancel()
 
-    runner = PipelineRunner(handle_sigint=runner_args.handle_sigint)
+    runner = PipelineRunner(handle_sigint=True)
 
     await runner.run(task)
 
 
 # ===== MAIN BOT ENTRY POINT =====
-
-async def bot(runner_args: RunnerArguments):
-    """Main bot entry point."""
-    transport_params = {
-        "daily": lambda: DailyParams(
-            audio_in_enabled=True,
-            audio_out_enabled=True,
-            vad_analyzer=SileroVADAnalyzer(params=VADParams(stop_secs=0.2)),
-            turn_analyzer=LocalSmartTurnAnalyzerV3(),
-        ),
-        "webrtc": lambda: TransportParams(
-            audio_in_enabled=True,
-            audio_out_enabled=True,
-            vad_analyzer=SileroVADAnalyzer(params=VADParams(stop_secs=0.2)),
-            turn_analyzer=LocalSmartTurnAnalyzerV3(),
-        ),
-    }
-
-    transport = await create_transport(runner_args, transport_params)
-    await run_bot(transport, runner_args)
-
 
 if __name__ == "__main__":
     import os
