@@ -19,4 +19,4 @@ RUN uv sync --locked --no-dev
 COPY bot.py bot.py
 COPY resource_document.txt resource_document.txt
 
-CMD ["uv", "run", "python", "bot.py", "--transport", "daily"]
+CMD ["uv", "run", "python", "bot.py"]
