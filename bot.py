@@ -798,11 +798,11 @@ if __name__ == "__main__":
     # Configure Pipecat to listen on 0.0.0.0 for Render deployment
     port = os.environ.get("PORT", "7860")
     
-    print(f"\n🚀 Bot starting! Open this URL in your browser:\n👉 http://localhost:{port}\n")
+    print(f"\n🚀 Bot starting! Open this URL in your browser:\n👉 http://localhost:{port}\n\n(If you are on a remote VM, you may need to use your Public IP instead of localhost)\n")
 
     sys.argv.extend([
         "--transport", "webrtc",
-        "--host", "127.0.0.1",
+        "--host", "0.0.0.0",
         "--port", port
     ])
     
